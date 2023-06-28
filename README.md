@@ -15,6 +15,9 @@ The numerical scheme is kept as simple as possible:
 
 ### Lid-driven cavity
 
+<p align="center">
+  <img width="300" alt="" src="cavity/re_100.gif">  <img width="300" alt="" src="cavity/re_500.gif">
+</p>
 
 ### Poiseuille flow
 

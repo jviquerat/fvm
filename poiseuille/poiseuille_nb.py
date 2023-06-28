@@ -50,7 +50,6 @@ def poisson(us, vs, u, phi, nx, ny, dx, dy, dt):
     err      = 1.0e10
     itp      = 0
     itmax    = 300000
-    omega    = 0.8
     ovf      = False
     phi[:,:] = 0.0
     phin     = np.zeros((nx+2,ny+2))
