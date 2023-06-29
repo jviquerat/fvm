@@ -18,9 +18,9 @@ from karman_nb import *
 # Set parameters
 l     = 22.0
 h     = 4.0
-dx    = 0.1
-dy    = 0.1
-t_max = 100.0
+dx    = 0.05
+dy    = 0.05
+t_max = 50.0
 cfl   = 0.5
 nu    = 0.01
 re    = 100.0
@@ -59,15 +59,16 @@ path     = "results/karman"
 os.makedirs(path, exist_ok=True)
 path_u    = path+"/velocity"
 path_p    = path+"/pressure"
-path_prof = path+"/profile"
 os.makedirs(path_u,    exist_ok=True)
 os.makedirs(path_p,    exist_ok=True)
-os.makedirs(path_prof, exist_ok=True)
 
 # Compute timestep
-tau  = l/umax
-mdxy = min(dx, dy)
-dt   = cfl*min(tau/re, tau*re*mdxy**2/(4.0*l**2))
+# tau  = l/umax
+# mdxy = min(dx, dy)
+# dt   = cfl*min(tau/re, tau*re*mdxy**2/(4.0*l**2))
+
+# Compute timestep
+dt = cfl*min(dx,dy)/(2.0*umax)
 
 # Set timer
 s_time = time.time()
@@ -84,8 +85,8 @@ while (t < t_max):
     # Left wall
     exp = 1.0 - math.exp(-it**2/(2.0*nx**2))
     for j in range(1,ny+1):
-        y           = (j-0.5)*dy
-        u_pois      = (4.0*umax*(h-y)*y/(h**2))*exp
+        y      = (j-0.5)*dy
+        u_pois = (4.0*umax*(h-y)*y/(h**2))*exp
         u[1,j] = u_pois
     v[0,2:-1] =-v[1,2:-1]
 
@@ -101,6 +102,7 @@ while (t < t_max):
     u[1:,0]    =-u[1:,1]
     v[1:-1,1]  = 0.0
 
+    # Inner obstacle
     u[c_xmin:c_xmax+2,c_ymin:c_ymax+1] = 0.0
     v[c_xmin:c_xmax  ,c_ymin:c_ymax+2] = 0.0
 
@@ -125,15 +127,16 @@ while (t < t_max):
     # Computes starred fields
     #########################
 
-    predictor(u, v, us, vs, p, nx, ny, dt, dx, dy, re)
+    predictor(u, v, us, vs, p, nx, ny,
+              c_xmin, c_xmax, c_ymin, c_ymax, dt, dx, dy, re)
 
     #########################
     # Poisson step
     # Computes pressure field
     #########################
 
-    itp, ovf = poisson(us, vs, u, phi, nx, ny, c_xmin, c_xmax,
-                       c_ymin, c_ymax, dx, dy, dt)
+    itp, ovf = poisson(us, vs, u, phi, nx, ny,
+                       c_xmin, c_xmax, c_ymin, c_ymax, dx, dy, dt)
     p[:,:]  += phi[:,:]
 
     n_itp = np.append(n_itp, np.array([it, itp]))
@@ -148,7 +151,8 @@ while (t < t_max):
     # Computes div-free fields
     #########################
 
-    corrector(u, v, us, vs, phi, nx, ny, dx, dy, dt)
+    corrector(u, v, us, vs, phi, nx, ny,
+              c_xmin, c_xmax, c_ymin, c_ymax, dx, dy, dt)
 
     #########################
     # Printings
@@ -205,26 +209,6 @@ while (t < t_max):
 
         filename = path_p+"/"+str(it_plt)+".png"
         plt.axis('off')
-        plt.savefig(filename, dpi=100)
-        plt.close()
-
-        # Plot profile at half domain
-        pos   = int((nx+2)/2)
-        u_num = np.zeros(ny)
-        u_ex  = np.zeros(ny)
-
-        y        = np.linspace(0, h, ny)
-        u_num[:] = pu[pos,:]
-        u_ex[:]  = u[1,1:-1]
-
-        plt.clf()
-        fig, ax = plt.subplots(1,1,figsize=(5,5))
-        fig.subplots_adjust(0,0,1,1)
-        ax.plot(y, u_num, color='blue')
-        ax.plot(y, u_ex,  color='red')
-        ax.grid(True)
-        fig.tight_layout()
-        filename = path_prof+"/"+str(it_plt)+".png"
         plt.savefig(filename, dpi=100)
         plt.close()
 
