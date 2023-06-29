@@ -29,3 +29,7 @@ The numerical scheme is kept as simple as possible:
 
 
 ### Rayleigh-Benard convection
+
+<p align="center">
+  <img width="300" alt="" src="rayleigh/temperature.gif">  <img width="300" alt="" src="rayleigh/velocity.gif">
+</p>
