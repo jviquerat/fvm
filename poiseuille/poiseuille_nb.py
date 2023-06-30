@@ -69,8 +69,9 @@ def poisson(us, vs, u, phi, nx, ny, dx, dy, dt):
 
 
         # Domain left (dirichlet)
-        phi[1,1:-1] = (1.0/(dy*dy+2.0*dx*dx))*(dy*dy*phi[2,1:-1] + dx*dx*(phin[1,2:] + phin[1,:-2]) -
-                            (dx*dx*dy*dy/dt)*((us[2,1:-1] - u[1,1:-1])/dx + (vs[1,2:] - vs[1,1:-1])/dy))
+        phi[1,1:-1] = (1.0/(dy*dy+2.0*dx*dx))*(
+            dy*dy*phi[2,1:-1] + dx*dx*(phin[1,2:] + phin[1,:-2]) -
+            (dx*dx*dy*dy/dt)*((us[2,1:-1] - u[1,1:-1])/dx + (vs[1,2:] - vs[1,1:-1])/dy))
 
         # Domain right (dirichlet)
         phi[-1,1:-1] =-phi[-2,1:-1]

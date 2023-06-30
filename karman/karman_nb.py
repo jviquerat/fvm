@@ -52,7 +52,7 @@ def predictor(u, v, us, vs, p, nx, ny, c_xmin, c_xmax, c_ymin, c_ymax, dt, dx, d
 @nb.njit(cache=False)
 def poisson(us, vs, u, phi, nx, ny, c_xmin, c_xmax, c_ymin, c_ymax, dx, dy, dt):
 
-    tol      = 1.0e-3
+    tol      = 1.0e-5
     err      = 1.0e10
     itp      = 0
     itmax    = 300000
@@ -77,9 +77,9 @@ def poisson(us, vs, u, phi, nx, ny, c_xmin, c_xmax, c_ymin, c_ymax, dx, dy, dt):
 
 
         # Domain left (dirichlet)
-        #phi[1,1:-1] = (1.0/(dy*dy+2.0*dx*dx))*(dy*dy*phi[2,1:-1] + dx*dx*(phin[1,2:] + phin[1,:-2]) -
-        #                    (dx*dx*dy*dy/dt)*((us[2,1:-1] - u[1,1:-1])/dx + (vs[1,2:] - vs[1,1:-1])/dy))
-        phi[1,1:-1] = phi[2,1:-1]
+        phi[1,1:-1] = (1.0/(dy*dy+2.0*dx*dx))*(
+            dy*dy*phi[2,1:-1] + dx*dx*(phin[1,2:] + phin[1,:-2]) -
+            (dx*dx*dy*dy/dt)*((us[2,1:-1] - u[1,1:-1])/dx + (vs[1,2:] - vs[1,1:-1])/dy))
 
         # Domain right (dirichlet)
         phi[-2,1:-1] =-phi[-3,1:-1]

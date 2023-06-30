@@ -18,14 +18,13 @@ from karman_nb import *
 # Set parameters
 l     = 22.0
 h     = 4.0
-dx    = 0.05
-dy    = 0.05
-t_max = 50.0
-cfl   = 0.5
-nu    = 0.01
-re    = 100.0
+dx    = 0.1
+dy    = 0.1
+t_max = 100.0
+cfl   = 0.25
+re    = 150.0
 r0    = 0.5
-umax  = re*nu/(2.0*r0)
+umax  = 1.0
 nx    = round(l/dx)
 ny    = round(h/dy)
 
@@ -104,7 +103,7 @@ while (t < t_max):
 
     # Inner obstacle
     u[c_xmin:c_xmax+2,c_ymin:c_ymax+1] = 0.0
-    v[c_xmin:c_xmax  ,c_ymin:c_ymax+2] = 0.0
+    v[c_xmin:c_xmax+1,c_ymin:c_ymax+2] = 0.0
 
     # Left obstacle
     u[c_xmin, c_ymin:c_ymax+1]   = 0.0
