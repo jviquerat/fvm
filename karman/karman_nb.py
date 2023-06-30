@@ -5,10 +5,13 @@ import numba as nb
 ###############################################
 # Predictor step
 @nb.njit(cache=False)
-def predictor(u, v, us, vs, p, nx, ny, dt, dx, dy, re):
+def predictor(u, v, us, vs, p, nx, ny, c_xmin, c_xmax, c_ymin, c_ymax, dt, dx, dy, re):
 
     for i in range(2,nx+1):
         for j in range(1,ny+1):
+            if ((i >= c_xmin) and (i <= c_xmax+1) and
+                (j >= c_ymin) and (j <= c_ymax)): continue
+
             uE = 0.5*(u[i+1,j] + u[i,j])
             uW = 0.5*(u[i,j]   + u[i-1,j])
             uN = 0.5*(u[i,j+1] + u[i,j])
@@ -26,6 +29,9 @@ def predictor(u, v, us, vs, p, nx, ny, dt, dx, dy, re):
 
     for i in range(1,nx+1):
         for j in range(2,ny+1):
+            if ((i >= c_xmin) and (i <= c_xmax) and
+                (j >= c_ymin) and (j <= c_ymax+1)): continue
+
             vE = 0.5*(v[i+1,j] + v[i,j])
             vW = 0.5*(v[i,j]   + v[i-1,j])
             uE = 0.5*(u[i+1,j] + u[i+1,j-1])
@@ -44,7 +50,7 @@ def predictor(u, v, us, vs, p, nx, ny, dt, dx, dy, re):
 ###############################################
 # Poisson step
 @nb.njit(cache=False)
-def poisson(us, vs, u, phi, nx, ny, dx, dy, dt):
+def poisson(us, vs, u, phi, nx, ny, c_xmin, c_xmax, c_ymin, c_ymax, dx, dy, dt):
 
     tol      = 1.0e-5
     err      = 1.0e10
@@ -59,6 +65,8 @@ def poisson(us, vs, u, phi, nx, ny, dx, dy, dt):
 
         for i in range(2,nx):
             for j in range(1,ny+1):
+                if ((i >= c_xmin) and (i <= c_xmax) and
+                    (j >= c_ymin) and (j <= c_ymax)): continue
 
                 b = ((us[i+1,j] - us[i,j])/dx +
                      (vs[i,j+1] - vs[i,j])/dy)/dt
@@ -74,6 +82,7 @@ def poisson(us, vs, u, phi, nx, ny, dx, dy, dt):
             (dx*dx*dy*dy/dt)*((us[2,1:-1] - u[1,1:-1])/dx + (vs[1,2:] - vs[1,1:-1])/dy))
 
         # Domain right (dirichlet)
+        phi[-2,1:-1] =-phi[-3,1:-1]
         phi[-1,1:-1] =-phi[-2,1:-1]
 
         # Domain top (neumann)
@@ -81,6 +90,21 @@ def poisson(us, vs, u, phi, nx, ny, dx, dy, dt):
 
         # Domain bottom (neumann)
         phi[1:-1, 0] = phi[1:-1, 1]
+
+        # Inner obstacle
+        phi[c_xmin:c_xmax+1,c_ymin:c_ymax+1] = 0.0
+
+        # Obstacle left
+        phi[c_xmin, c_ymin:c_ymax+1] = phi[c_xmin-1, c_ymin:c_ymax+1]
+
+        # Obstacle right
+        phi[c_xmax, c_ymin:c_ymax+1] = phi[c_xmax+1, c_ymin:c_ymax+1]
+
+        # Obstacle top
+        phi[c_xmin:c_xmax+1, c_ymax] = phi[c_xmin:c_xmax+1, c_ymax+1]
+
+        # Obstacle bottom
+        phi[c_xmin:c_xmax+1, c_ymin] = phi[c_xmin:c_xmax+1, c_ymin-1]
 
         # Compute error
         dphi = np.reshape(phi - phin, (-1))
@@ -96,7 +120,16 @@ def poisson(us, vs, u, phi, nx, ny, dx, dy, dt):
 ###############################################
 # Corrector step
 @nb.njit(cache=False)
-def corrector(u, v, us, vs, phi, nx, ny, dx, dy, dt):
+def corrector(u, v, us, vs, phi, nx, ny, c_xmin, c_xmax, c_ymin, c_ymax, dx, dy, dt):
 
-    u[2:-1,1:-1] = us[2:-1,1:-1] - dt*(phi[2:-1,1:-1] - phi[1:-2,1:-1])/dx
-    v[1:-1,2:-1] = vs[1:-1,2:-1] - dt*(phi[1:-1,2:-1] - phi[1:-1,1:-2])/dy
+    for i in range(2,nx+1):
+        for j in range(1,ny+1):
+            if ((i >= c_xmin) and (i <= c_xmax+1) and
+                (j >= c_ymin) and (j <= c_ymax)): continue
+            u[i,j] = us[i,j] - dt*(phi[i,j] - phi[i-1,j])/dx
+
+    for i in range(1,nx+1):
+        for j in range(2,ny+1):
+            if ((i >= c_xmin) and (i <= c_xmax) and
+                (j >= c_ymin) and (j <= c_ymax+1)): continue
+            v[i,j] = vs[i,j] - dt*(phi[i,j] - phi[i,j-1])/dy
