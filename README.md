@@ -27,6 +27,9 @@ The numerical scheme is kept as simple as possible:
 
 ### Von Karman flow
 
+<p align="center">
+  <img height="200" alt="" src="karman/velocity.gif">
+</p>
 
 ### Rayleigh-Benard convection
 
