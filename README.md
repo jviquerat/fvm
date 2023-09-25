@@ -7,7 +7,7 @@ Monolithic finite volume codes in 2D.
 This repository contains a handful of 2D staggered finite volume codes for simple flow problems. The implementations heavily borrow from <a href="https://github.com/saadtony/uCFD">this repository</a>.
 The numerical scheme is kept as simple as possible:
 
-- Centered fluxes
+- Centered fluxes or upwind fluxes
 - Structured grid
 - Incremental pressure correction method
 
