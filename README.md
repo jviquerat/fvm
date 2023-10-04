@@ -13,8 +13,15 @@ The numerical scheme is kept as simple as possible:
 
 ## Results
 
-| **`Lid-driven cavity`**                                | **`Rayleigh-Benard convection`**                        |
-|:------------------------------------------------------:|:-------------------------------------------------------:|
-| <img width="300" alt="" src="cavity/re_500.gif">       | <img width="300" alt="" src="rayleigh/temperature.gif"> |
-| **`Poiseuille flow`**                                  | **`Von Karman flow`**                                   |
-| <img width="400" alt="" src="poiseuille/velocity.gif"> |  <img width="400" alt="" src="karman/velocity.gif">     |
+| **`Lid-driven cavity`**                                 | **`Rayleigh-Benard convection`**                        |
+|:-------------------------------------------------------:|:-------------------------------------------------------:|
+| <img width="300" alt="" src="cavity/re_500.gif">        | <img width="300" alt="" src="rayleigh/temperature.gif"> |
+| **`Passive scalar transport`**                          |                                                         |
+| <img width="300" alt="" src="mixing/concentration.gif"> |                                                         |
+|                                                         |                                                         |
+
+| **`Poiseuille flow`**                                  |
+|:------------------------------------------------------:|
+| <img width="600" alt="" src="poiseuille/velocity.gif"> |
+| **`Von Karman flow`**                                  |
+| <img width="600" alt="" src="karman/velocity.gif">     |
